@@ -1,4 +1,7 @@
 const express = require(`express`);
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const config = require("config");
 
 const router = express.Router();
 
@@ -20,12 +23,54 @@ router.post(
       "please enter a password with 6 or more characters"
     ).isLength({ min: 6 }),
   ],
-  (req, resp) => {
+  async (req, resp) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return resp.status(400).json({ errors: errors.array() });
     }
-    resp.send("passed");
+    //had been checking for pass here with resp.send('passed')
+
+    const { name, email, password } = req.body;
+
+    //using a try/catch here because I am dealing with the database as well as bcrypt, all of which return promises
+    try {
+      let user = await User.findOne({ email });
+      if (user) {
+        return resp.status(400).json({ msg: `User already exists` });
+      }
+      user = new User({
+        name,
+        email,
+        password,
+      });
+
+      const salt = await bcrypt.genSalt(10);
+
+      user.password = await bcrypt.hash(password, salt);
+
+      await user.save();
+
+      const payload = {
+        user: {
+          id: user.id,
+        },
+      };
+
+      jwt.sign(
+        payload,
+        config.get("jwtSecret"),
+        {
+          expiresIn: 360000,
+        },
+        (err, token) => {
+          if (err) throw err;
+          resp.json({ token });
+        }
+      );
+    } catch (error) {
+      console.log(`error ${error.message}`);
+      resp.status(500).send(`server error`);
+    }
   }
 );
 

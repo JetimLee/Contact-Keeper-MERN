@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/JetimLee/Contact-Keeper-MERN#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
     "config": "^3.3.6",
     "express": "^4.17.1",
