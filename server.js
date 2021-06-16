@@ -5,6 +5,10 @@ const app = express();
 const PORT = 1000 || process.env.PORT;
 
 connectDB();
+
+//starting middleware
+
+app.use(express.json({ extended: false }));
 app.get("/", (req, resp) => {
   resp.json({
     msg: `Welcome to the Contact Keeper API built by Gavin Coulson`,
