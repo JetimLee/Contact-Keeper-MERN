@@ -1,8 +1,10 @@
 const express = require("express");
+const connectDB = require("./config/db");
 
 const app = express();
 const PORT = 1000 || process.env.PORT;
 
+connectDB();
 app.get("/", (req, resp) => {
   resp.json({
     msg: `Welcome to the Contact Keeper API built by Gavin Coulson`,
